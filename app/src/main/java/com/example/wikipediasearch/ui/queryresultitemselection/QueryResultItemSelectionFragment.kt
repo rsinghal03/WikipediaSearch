@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
 import com.example.wikipediasearch.ui.BaseFragment
 import kotlinx.android.synthetic.main.query_result_item_selection_fragment.*
 import android.webkit.WebViewClient
+import com.example.wikipediasearch.MainActivity
 import com.example.wikipediasearch.R
 
 
@@ -34,6 +36,7 @@ class QueryResultItemSelectionFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         webView.settings.javaScriptEnabled = true
         webView.webViewClient = WebViewClient()
+        (requireActivity() as MainActivity).onBackPressWebView(webView)
         webView.loadUrl("https://en.wikipedia.org/wiki/Translation?curid=$pageId")
     }
 
@@ -46,4 +49,9 @@ class QueryResultItemSelectionFragment : BaseFragment() {
             return fragment
         }
     }
+
+    interface BackPressHandler {
+        fun onBackPressWebView(webView: WebView)
+    }
+
 }
