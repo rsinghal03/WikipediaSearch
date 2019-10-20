@@ -13,7 +13,8 @@ import io.reactivex.Observable
 
  */
 
-class WikiMediaServiceProviderImpl(private val wikiMediaApiClient: WikiMediaApiClient) : WikiServiceProvider{
+class WikiWebServiceProviderImpl(private val wikiMediaApiClient: WikiMediaApiClient) :
+    WikiWebServiceProvider {
 
     override fun getResultForSearchQuery(query: String): Observable<WikiMediaResponse> {
         val wikiMediaService = wikiMediaApiClient.getRetrofit().create(WikiMediaService::class.java)

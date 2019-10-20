@@ -1,13 +1,13 @@
 package com.example.wikipediasearch.ui.searchQueryResult
 
-import com.example.wikipediasearch.data.WikiServiceProvider
+import com.example.wikipediasearch.ServiceLocator
 import com.example.wikipediasearch.data.model.WikiMediaResponse
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 
-class SearchQueryResultPresenter(private val wikiServiceProvider: WikiServiceProvider): SearchQueryResultContract.Presenter{
+class SearchQueryResultPresenter(private val serviceLocator: ServiceLocator): SearchQueryResultContract.Presenter{
 
     override var view: SearchQueryResultContract.View? = null
 
@@ -15,7 +15,7 @@ class SearchQueryResultPresenter(private val wikiServiceProvider: WikiServicePro
 
     override fun getSearchQueryResult(query: String) {
         view?.showLoading()
-        wikiServiceProvider.getResultForSearchQuery(query)
+        serviceLocator.getWikiWebServiceProvider().getResultForSearchQuery(query)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe ({success -> handleSuccess(success)  }, {error ->  })
@@ -24,6 +24,7 @@ class SearchQueryResultPresenter(private val wikiServiceProvider: WikiServicePro
 
     private fun handleSuccess(success: WikiMediaResponse) {
         view?.hideLoading()
+        serviceLocator.getWikiDbServiceProvider().insertData(success)
         view?.updateSearchQueryResult(success.query?.pages)
     }
 

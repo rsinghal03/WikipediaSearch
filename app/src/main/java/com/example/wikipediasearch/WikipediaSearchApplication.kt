@@ -1,21 +1,15 @@
 package com.example.wikipediasearch
 
 import android.app.Application
-import com.example.wikipediasearch.dependencyinjection.DaggerWikiMediaComponent
-import com.example.wikipediasearch.dependencyinjection.WikiMediaComponent
+import com.facebook.stetho.Stetho
 
 class WikipediaSearchApplication : Application() {
 
-    lateinit var wikiMediaComponent: WikiMediaComponent
-
-    init {
-        initDagger()
+    override fun onCreate() {
+        super.onCreate()
+        DaggerInit.getInstance(this)
+        Stetho.initializeWithDefaults(this)
     }
-
-    private fun initDagger() {
-        wikiMediaComponent = DaggerWikiMediaComponent.create()
-    }
-
 
     companion object {
 

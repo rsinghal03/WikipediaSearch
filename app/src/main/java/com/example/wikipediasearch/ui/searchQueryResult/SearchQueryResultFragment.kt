@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.wikipediasearch.DaggerInit
 import com.example.wikipediasearch.R
-import com.example.wikipediasearch.WikipediaSearchApplication
 import com.example.wikipediasearch.data.model.Page
 import com.example.wikipediasearch.extension.replace
 import com.example.wikipediasearch.extension.visible
@@ -26,7 +26,7 @@ class SearchQueryResultFragment: BaseFragment(), SearchQueryResultContract.View 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WikipediaSearchApplication.getInstance().wikiMediaComponent.inject(this)
+        DaggerInit.instance?.wikiMediaComponent?.inject(this)
     }
 
     override fun onCreateView(
