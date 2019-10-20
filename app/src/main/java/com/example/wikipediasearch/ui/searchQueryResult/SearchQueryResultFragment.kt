@@ -86,7 +86,6 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
         recycler_view_id.visible()
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         searchQueryResultPresenter.detachView()
