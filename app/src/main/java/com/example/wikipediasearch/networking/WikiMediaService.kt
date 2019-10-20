@@ -8,7 +8,7 @@ import retrofit2.http.Query
 interface WikiMediaService {
 
     @GET("/w/api.php")
-    fun getFlickerPhotoResponse(
+    fun getWikiMediaResponse(
         @Query("action") action: String,
         @Query("format") format: String,
         @Query("prop") prop: String,
