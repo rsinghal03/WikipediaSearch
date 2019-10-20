@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wikipediasearch.DaggerInit
@@ -14,10 +15,11 @@ import com.example.wikipediasearch.extension.replace
 import com.example.wikipediasearch.extension.visible
 import com.example.wikipediasearch.ui.BaseFragment
 import com.example.wikipediasearch.ui.queryresultitemselection.QueryResultItemSelectionFragment
+import com.example.wikipediasearch.utils.isNetworkAvailable
 import kotlinx.android.synthetic.main.search_result_query_fragment.*
 import javax.inject.Inject
 
-class SearchQueryResultFragment: BaseFragment(), SearchQueryResultContract.View {
+class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View {
 
     lateinit var searchQueryResultListAdapter: SearchQueryResultListAdapter
 
@@ -35,7 +37,8 @@ class SearchQueryResultFragment: BaseFragment(), SearchQueryResultContract.View 
         savedInstanceState: Bundle?
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        return LayoutInflater.from(inflater.context).inflate(R.layout.search_result_query_fragment, container, false)
+        return LayoutInflater.from(inflater.context)
+            .inflate(R.layout.search_result_query_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,16 +46,30 @@ class SearchQueryResultFragment: BaseFragment(), SearchQueryResultContract.View 
         searchQueryResultPresenter.attachView(this)
         getSearchQuery()
         searchQueryResultListAdapter = SearchQueryResultListAdapter(requireContext())
-        searchQueryResultListAdapter.onItemClick = {pageId -> replace(QueryResultItemSelectionFragment.getInstance(pageId.toString()), R.id.container, true)}
-        recycler_view_id.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+        searchQueryResultListAdapter.onItemClick = { pageId ->
+            replace(
+                QueryResultItemSelectionFragment.getInstance(pageId.toString()),
+                R.id.container,
+                true
+            )
+        }
+        recycler_view_id.layoutManager =
+            LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         recycler_view_id.adapter = searchQueryResultListAdapter
     }
 
     private fun getSearchQuery() {
         search_view.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if(!query.isNullOrEmpty())
-                searchQueryResultPresenter.getSearchQueryResult(query)
+                if (!query.isNullOrEmpty())
+                    if (isNetworkAvailable(requireContext())) {
+                        searchQueryResultPresenter.getSearchQueryResult(query)
+                    } else {
+                        searchQueryResultPresenter
+                            .getSearchQueryFromDb(query).observe(
+                                requireActivity(),
+                                Observer { updateSearchQueryResult(it.query?.pages) })
+                    }
                 return true
             }
 
@@ -64,10 +81,10 @@ class SearchQueryResultFragment: BaseFragment(), SearchQueryResultContract.View 
     }
 
     override fun updateSearchQueryResult(listOfQueryResult: List<Page>?) {
-        if(!listOfQueryResult.isNullOrEmpty())
-        searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
+        if (!listOfQueryResult.isNullOrEmpty())
+            searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
         recycler_view_id.visible()
-}
+    }
 
 
     override fun onDestroy() {
