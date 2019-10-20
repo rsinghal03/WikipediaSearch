@@ -16,6 +16,8 @@ class SearchQueryResultListAdapter(private val context: Context) :
 
     lateinit var listOfQueryResult: List<Page>
 
+    var onItemClick: ((pageId: Int) -> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.search_result_item_view, parent, false)
@@ -47,7 +49,7 @@ class SearchQueryResultListAdapter(private val context: Context) :
             view.findViewById<AppCompatImageView>(R.id.search_result_image)
 
         init {
-
+                view.setOnClickListener { onItemClick?.invoke(listOfQueryResult[adapterPosition].pageid) }
         }
 
     }

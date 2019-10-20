@@ -10,8 +10,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.wikipediasearch.R
 import com.example.wikipediasearch.WikipediaSearchApplication
 import com.example.wikipediasearch.data.model.Page
+import com.example.wikipediasearch.extension.replace
 import com.example.wikipediasearch.extension.visible
 import com.example.wikipediasearch.ui.BaseFragment
+import com.example.wikipediasearch.ui.queryresultitemselection.QueryResultItemSelectionFragment
 import kotlinx.android.synthetic.main.search_result_query_fragment.*
 import javax.inject.Inject
 
@@ -41,6 +43,7 @@ class SearchQueryResultFragment: BaseFragment(), SearchQueryResultContract.View 
         searchQueryResultPresenter.attachView(this)
         getSearchQuery()
         searchQueryResultListAdapter = SearchQueryResultListAdapter(requireContext())
+        searchQueryResultListAdapter.onItemClick = {pageId -> replace(QueryResultItemSelectionFragment.getInstance(pageId.toString()), R.id.container, true)}
         recycler_view_id.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         recycler_view_id.adapter = searchQueryResultListAdapter
     }
