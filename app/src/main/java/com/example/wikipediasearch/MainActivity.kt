@@ -5,7 +5,7 @@ import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.wikipediasearch.extension.add
 import com.example.wikipediasearch.ui.queryresultitemselection.QueryResultItemSelectionFragment
-import com.example.wikipediasearch.ui.searchQueryResult.SearchQueryResultFragment
+import com.example.wikipediasearch.ui.searchqueryresult.SearchQueryResultFragment
 
 class MainActivity : AppCompatActivity(), QueryResultItemSelectionFragment.BackPressHandler {
 

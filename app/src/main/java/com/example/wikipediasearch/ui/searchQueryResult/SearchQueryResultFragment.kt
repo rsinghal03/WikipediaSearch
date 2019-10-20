@@ -1,4 +1,4 @@
-package com.example.wikipediasearch.ui.searchQueryResult
+package com.example.wikipediasearch.ui.searchqueryresult
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -21,7 +21,9 @@ import javax.inject.Inject
 
 class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View {
 
-    lateinit var searchQueryResultListAdapter: SearchQueryResultListAdapter
+    private lateinit var searchQueryResultListAdapter: SearchQueryResultListAdapter
+
+    private var listOfQueryResult: ArrayList<Page> = ArrayList()
 
     @Inject
     lateinit var searchQueryResultPresenter: SearchQueryResultPresenter
@@ -46,6 +48,10 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
         searchQueryResultPresenter.attachView(this)
         getSearchQuery()
         searchQueryResultListAdapter = SearchQueryResultListAdapter(requireContext())
+        if (!listOfQueryResult.isNullOrEmpty()) {
+            searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
+            recycler_view_id.visible()
+        }
         searchQueryResultListAdapter.onItemClick = { pageId ->
             replace(
                 QueryResultItemSelectionFragment.getInstance(pageId.toString()),
@@ -76,13 +82,14 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
             override fun onQueryTextChange(newText: String?): Boolean {
                 return false
             }
-
         })
     }
 
     override fun updateSearchQueryResult(listOfQueryResult: List<Page>?) {
-        if (!listOfQueryResult.isNullOrEmpty())
+        if (!listOfQueryResult.isNullOrEmpty()) {
             searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
+            this.listOfQueryResult = listOfQueryResult as ArrayList<Page>
+        }
         recycler_view_id.visible()
     }
 

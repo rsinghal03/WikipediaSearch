@@ -6,7 +6,7 @@ import com.example.wikipediasearch.ServiceLocatorImpl
 import com.example.wikipediasearch.data.WikiWebServiceProviderImpl
 import com.example.wikipediasearch.data.WikiWebServiceProvider
 import com.example.wikipediasearch.networking.WikiMediaApiClient
-import com.example.wikipediasearch.ui.searchQueryResult.SearchQueryResultPresenter
+import com.example.wikipediasearch.ui.searchqueryresult.SearchQueryResultPresenter
 import dagger.Module
 import dagger.Provides
 

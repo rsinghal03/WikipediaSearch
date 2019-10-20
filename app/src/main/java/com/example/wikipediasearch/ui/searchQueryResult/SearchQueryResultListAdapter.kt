@@ -1,4 +1,4 @@
-package com.example.wikipediasearch.ui.searchQueryResult
+package com.example.wikipediasearch.ui.searchqueryresult
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -14,7 +14,7 @@ import com.example.wikipediasearch.data.model.Page
 class SearchQueryResultListAdapter(private val context: Context) :
     RecyclerView.Adapter<SearchQueryResultListAdapter.ViewHolder>() {
 
-    lateinit var listOfQueryResult: List<Page>
+    private var listOfQueryResult: ArrayList<Page> = ArrayList<Page>()
 
     var onItemClick: ((pageId: Int) -> Unit)? = null
 
@@ -36,7 +36,8 @@ class SearchQueryResultListAdapter(private val context: Context) :
     }
 
     fun updateSearchQueryResultList(listOfQueryResult: List<Page>) {
-        this.listOfQueryResult = listOfQueryResult
+        this.listOfQueryResult.clear()
+        this.listOfQueryResult.addAll(listOfQueryResult)
         notifyDataSetChanged()
     }
 

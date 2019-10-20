@@ -1,4 +1,4 @@
-package com.example.wikipediasearch.ui.searchQueryResult
+package com.example.wikipediasearch.ui.searchqueryresult
 
 import androidx.lifecycle.LiveData
 import com.example.wikipediasearch.data.model.Page
