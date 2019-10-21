@@ -72,18 +72,13 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
         search_view.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrEmpty())
-                    if (isNetworkAvailable(requireContext())) {
-                        searchQueryResultPresenter.getSearchQueryResult(query)
-                    } else {
-                        searchQueryResultPresenter
-                            .getSearchQueryFromDb(query)
-                    }
+                    triggerSearch(query)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 if(!newText.isNullOrEmpty()){
-                    searchQueryResultPresenter.getSearchQueryResult(newText)
+                    triggerSearch(newText)
                 } else {
                     listOfQueryResult.clear()
                     searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
@@ -91,6 +86,15 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
                 return true
             }
         })
+    }
+
+    private fun triggerSearch(query: String) {
+        if (isNetworkAvailable(requireContext())) {
+            searchQueryResultPresenter.getSearchQueryResult(query)
+        } else {
+            searchQueryResultPresenter
+                .getSearchQueryFromDb(query)
+        }
     }
 
     override fun updateSearchQueryResult(listOfQueryResult: List<Page>?) {
@@ -103,6 +107,7 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
 
     override fun onDestroy() {
         super.onDestroy()
+        listOfQueryResult.clear()
         searchQueryResultPresenter.detachView()
     }
 
