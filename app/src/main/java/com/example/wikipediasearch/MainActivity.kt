@@ -1,6 +1,7 @@
 package com.example.wikipediasearch
 
 import android.os.Bundle
+import android.util.Log
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.wikipediasearch.extension.add
@@ -27,5 +28,10 @@ class MainActivity : AppCompatActivity(), QueryResultItemSelectionFragment.BackP
             supportFragmentManager.backStackEntryCount>=1 -> supportFragmentManager.popBackStack()
             else -> finish()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i("MainActivity","onDestroy")
     }
 }
