@@ -17,6 +17,8 @@ Webview is used to load the Wikipedia web page for the selected query result ite
 
 Back navigation is handled for fragment and webview
 
+Note: Github history is well maintained and not more than 15 files has been commited at single instance.
+
 
 
 
