@@ -34,7 +34,8 @@ class SearchQueryResultPresenter(private val serviceLocator: ServiceLocator): Se
         view?.updateSearchQueryResult(success.query?.pages)
     }
 
-    override fun getSearchQueryFromDb(query: String): LiveData<WikiMediaResponse> {
-        return serviceLocator.getWikiDbServiceProvider().getSearchQueryResult(query)
+    override fun getSearchQueryFromDb(query: String) {
+        val liveDataWikiResponse = serviceLocator.getWikiDbServiceProvider().getSearchQueryResult(query)
+        liveDataWikiResponse.observeForever { view?.updateSearchQueryResult(it.query?.pages) }
     }
 }

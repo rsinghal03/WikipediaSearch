@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wikipediasearch.DaggerInit
@@ -26,7 +25,7 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
     private var listOfQueryResult: ArrayList<Page> = ArrayList()
 
     @Inject
-    lateinit var searchQueryResultPresenter: SearchQueryResultPresenter
+    lateinit var searchQueryResultPresenter: SearchQueryResultContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,11 +46,15 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
         super.onViewCreated(view, savedInstanceState)
         searchQueryResultPresenter.attachView(this)
         getSearchQuery()
-        searchQueryResultListAdapter = SearchQueryResultListAdapter(requireContext())
+        setSearchQueryListAdapter()
         if (!listOfQueryResult.isNullOrEmpty()) {
             searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
             recycler_view_id.visible()
         }
+    }
+
+    private fun setSearchQueryListAdapter() {
+        searchQueryResultListAdapter = SearchQueryResultListAdapter(requireContext())
         searchQueryResultListAdapter.onItemClick = { pageId ->
             replace(
                 QueryResultItemSelectionFragment.getInstance(pageId.toString()),
@@ -64,6 +67,7 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
         recycler_view_id.adapter = searchQueryResultListAdapter
     }
 
+
     private fun getSearchQuery() {
         search_view.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -72,15 +76,19 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
                         searchQueryResultPresenter.getSearchQueryResult(query)
                     } else {
                         searchQueryResultPresenter
-                            .getSearchQueryFromDb(query).observe(
-                                requireActivity(),
-                                Observer { updateSearchQueryResult(it.query?.pages) })
+                            .getSearchQueryFromDb(query)
                     }
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                return false
+                if(!newText.isNullOrEmpty()){
+                    searchQueryResultPresenter.getSearchQueryResult(newText)
+                } else {
+                    listOfQueryResult.clear()
+                    searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
+                }
+                return true
             }
         })
     }
