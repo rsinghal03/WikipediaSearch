@@ -1,6 +1,11 @@
 package com.example.wikipediasearch.ui.searchqueryresult
 
+import android.app.SearchManager
+import android.content.ComponentName
+import android.content.Context
+import android.database.Cursor
 import android.os.Bundle
+import android.provider.SearchRecentSuggestions
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +18,7 @@ import com.example.wikipediasearch.data.model.Page
 import com.example.wikipediasearch.extension.replace
 import com.example.wikipediasearch.extension.visible
 import com.example.wikipediasearch.ui.BaseFragment
+import com.example.wikipediasearch.ui.MainActivity
 import com.example.wikipediasearch.ui.queryresultitemselection.QueryResultItemSelectionFragment
 import com.example.wikipediasearch.utils.isNetworkAvailable
 import kotlinx.android.synthetic.main.search_result_query_fragment.*
@@ -46,11 +52,33 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
         super.onViewCreated(view, savedInstanceState)
         searchQueryResultPresenter.attachView(this)
         getSearchQuery()
+        setSuggestionListener()
         setSearchQueryListAdapter()
         if (!listOfQueryResult.isNullOrEmpty()) {
             searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
             recycler_view_id.visible()
         }
+        val searchManager = requireContext().getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        search_view.setSearchableInfo(searchManager.getSearchableInfo(ComponentName(requireContext(), MainActivity::class.java)))
+    }
+
+    private fun setSuggestionListener() {
+        search_view.setOnSuggestionListener(object : SearchView.OnSuggestionListener {
+            override fun onSuggestionSelect(position: Int): Boolean {
+                return false
+
+            }
+
+            override fun onSuggestionClick(position: Int): Boolean {
+                val adapter = search_view.suggestionsAdapter
+                val item = adapter.getItem(position) as Cursor
+                val query = item.getString(2)
+                triggerSearch(query)
+                search_view.setQuery(query, false)
+                return true
+            }
+
+        })
     }
 
     private fun setSearchQueryListAdapter() {
@@ -71,8 +99,16 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
     private fun getSearchQuery() {
         search_view.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (!query.isNullOrEmpty())
+                if (!query.isNullOrEmpty()) {
+                    SearchRecentSuggestions(
+                        requireContext(),
+                        WikiSearchSuggestionProvider.AUTHORITY,
+                        WikiSearchSuggestionProvider.MODE
+                    )
+                        .saveRecentQuery(query, "")
+
                     triggerSearch(query)
+                }
                 return true
             }
 
@@ -87,6 +123,8 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
             }
         })
     }
+
+
 
     private fun triggerSearch(query: String) {
         if (isNetworkAvailable(requireContext())) {

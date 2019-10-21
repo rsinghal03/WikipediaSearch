@@ -8,7 +8,7 @@ import android.webkit.WebView
 import com.example.wikipediasearch.ui.BaseFragment
 import kotlinx.android.synthetic.main.query_result_item_selection_fragment.*
 import android.webkit.WebViewClient
-import com.example.wikipediasearch.MainActivity
+import com.example.wikipediasearch.ui.MainActivity
 import com.example.wikipediasearch.R
 
 

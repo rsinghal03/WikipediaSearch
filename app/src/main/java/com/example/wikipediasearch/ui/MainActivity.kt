@@ -1,9 +1,10 @@
-package com.example.wikipediasearch
+package com.example.wikipediasearch.ui
 
 import android.os.Bundle
 import android.util.Log
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.wikipediasearch.R
 import com.example.wikipediasearch.extension.add
 import com.example.wikipediasearch.ui.queryresultitemselection.QueryResultItemSelectionFragment
 import com.example.wikipediasearch.ui.searchqueryresult.SearchQueryResultFragment
