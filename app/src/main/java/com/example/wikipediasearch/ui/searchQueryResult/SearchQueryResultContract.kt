@@ -13,5 +13,7 @@ interface SearchQueryResultContract {
         fun getSearchQueryResult(query: String)
 
         fun getSearchQueryFromDb(query: String)
+
+        fun cancelQuery()
     }
 }

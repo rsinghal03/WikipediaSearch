@@ -116,6 +116,7 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
                 if(!newText.isNullOrEmpty()){
                     triggerSearch(newText)
                 } else {
+                    searchQueryResultPresenter.cancelQuery()
                     listOfQueryResult.clear()
                     searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
                 }
