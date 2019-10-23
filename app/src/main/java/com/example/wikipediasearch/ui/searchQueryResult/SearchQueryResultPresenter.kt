@@ -37,14 +37,14 @@ class SearchQueryResultPresenter(private val serviceLocator: ServiceLocator) :
         view?.hideLoading()
         success.userQuery = userQuery as String
         serviceLocator.getWikiDbServiceProvider().insertData(success)
-        view?.updateSearchQueryResult(success.query?.pages)
+        view?.updateSearchQueryResult(success)
     }
 
     override fun getSearchQueryFromDb(query: String) {
         val liveDataWikiResponse =
             serviceLocator.getWikiDbServiceProvider().getSearchQueryResult(query)
         liveDataWikiResponse.observeForever {
-            view?.updateSearchQueryResult(it?.query?.pages)
+            view?.updateSearchQueryResult(it)
         }
     }
 }

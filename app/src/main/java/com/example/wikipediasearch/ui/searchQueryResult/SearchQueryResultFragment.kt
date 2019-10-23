@@ -6,6 +6,7 @@ import android.content.Context
 import android.database.Cursor
 import android.os.Bundle
 import android.provider.SearchRecentSuggestions
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wikipediasearch.DaggerInit
 import com.example.wikipediasearch.R
-import com.example.wikipediasearch.data.model.Page
+import com.example.wikipediasearch.data.model.WikiMediaResponse
 import com.example.wikipediasearch.extension.replace
 import com.example.wikipediasearch.extension.visible
 import com.example.wikipediasearch.ui.BaseFragment
@@ -24,11 +25,13 @@ import com.example.wikipediasearch.utils.isNetworkAvailable
 import kotlinx.android.synthetic.main.search_result_query_fragment.*
 import javax.inject.Inject
 
+private const val TAG = "SearchQueryResult"
+
 class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View {
 
     private lateinit var searchQueryResultListAdapter: SearchQueryResultListAdapter
 
-    private var listOfQueryResult: ArrayList<Page> = ArrayList()
+    private var wikiMediaResponse: WikiMediaResponse? = null
 
     @Inject
     lateinit var searchQueryResultPresenter: SearchQueryResultContract.Presenter
@@ -44,18 +47,20 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
         savedInstanceState: Bundle?
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
+        Log.i(TAG, "onCreateView")
         return LayoutInflater.from(inflater.context)
             .inflate(R.layout.search_result_query_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.i(TAG, "onViewCreated")
         searchQueryResultPresenter.attachView(this)
         getSearchQuery()
         setSuggestionListener()
         setSearchQueryListAdapter()
-        if (!listOfQueryResult.isNullOrEmpty()) {
-            searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
+        wikiMediaResponse.let {
+            searchQueryResultListAdapter.updateSearchQueryResultList(it)
             recycler_view_id.visible()
         }
         val searchManager = requireContext().getSystemService(Context.SEARCH_SERVICE) as SearchManager
@@ -66,7 +71,6 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
         search_view.setOnSuggestionListener(object : SearchView.OnSuggestionListener {
             override fun onSuggestionSelect(position: Int): Boolean {
                 return false
-
             }
 
             override fun onSuggestionClick(position: Int): Boolean {
@@ -81,9 +85,15 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
         })
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        Log.i(TAG, "onActivityCreated")
+    }
+
     private fun setSearchQueryListAdapter() {
         searchQueryResultListAdapter = SearchQueryResultListAdapter(requireContext())
-        searchQueryResultListAdapter.onItemClick = { pageId ->
+        searchQueryResultListAdapter.onItemClick = { pageId, userQuery ->
+            userQuery?.let { saveToRecentSearchSuggestion(it) }
             replace(
                 QueryResultItemSelectionFragment.getInstance(pageId.toString()),
                 R.id.container,
@@ -100,13 +110,7 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
         search_view.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrEmpty()) {
-                    SearchRecentSuggestions(
-                        requireContext(),
-                        WikiSearchSuggestionProvider.AUTHORITY,
-                        WikiSearchSuggestionProvider.MODE
-                    )
-                        .saveRecentQuery(query, "")
-
+                    saveToRecentSearchSuggestion(query)
                     triggerSearch(query)
                 }
                 return true
@@ -117,14 +121,24 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
                     triggerSearch(newText)
                 } else {
                     searchQueryResultPresenter.cancelQuery()
-                    listOfQueryResult.clear()
-                    searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
+                    wikiMediaResponse = null
+                    wikiMediaResponse.let {
+                        searchQueryResultListAdapter.updateSearchQueryResultList(it)
+                    }
                 }
                 return true
             }
         })
     }
 
+    private fun saveToRecentSearchSuggestion(query: String) {
+        SearchRecentSuggestions(
+            requireContext(),
+            WikiSearchSuggestionProvider.AUTHORITY,
+            WikiSearchSuggestionProvider.MODE
+        )
+            .saveRecentQuery(query, "")
+    }
 
 
     private fun triggerSearch(query: String) {
@@ -136,17 +150,28 @@ class SearchQueryResultFragment : BaseFragment(), SearchQueryResultContract.View
         }
     }
 
-    override fun updateSearchQueryResult(listOfQueryResult: List<Page>?) {
-        if (!listOfQueryResult.isNullOrEmpty()) {
-            searchQueryResultListAdapter.updateSearchQueryResultList(listOfQueryResult)
-            this.listOfQueryResult = listOfQueryResult as ArrayList<Page>
-        }
+    override fun updateSearchQueryResult(wikiMediaResponse: WikiMediaResponse) {
+            wikiMediaResponse.let {
+                searchQueryResultListAdapter.updateSearchQueryResultList(it)
+                this.wikiMediaResponse = it
+            }
         recycler_view_id.visible()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.i(TAG, "onStop")
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.i(TAG, "onDestroyView")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        listOfQueryResult.clear()
+        Log.i(TAG, "onDestroy")
+        wikiMediaResponse = null
         searchQueryResultPresenter.detachView()
     }
 

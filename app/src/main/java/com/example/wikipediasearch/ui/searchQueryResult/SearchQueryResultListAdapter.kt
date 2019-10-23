@@ -10,13 +10,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.wikipediasearch.R
 import com.example.wikipediasearch.data.model.Page
+import com.example.wikipediasearch.data.model.WikiMediaResponse
 
 class SearchQueryResultListAdapter(private val context: Context) :
     RecyclerView.Adapter<SearchQueryResultListAdapter.ViewHolder>() {
 
     private var listOfQueryResult: ArrayList<Page> = ArrayList<Page>()
 
-    var onItemClick: ((pageId: Int) -> Unit)? = null
+    var onItemClick: ((pageId: Int, userQuery: String?) -> Unit)? = null
+
+    private var userQuery: String? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -35,9 +38,10 @@ class SearchQueryResultListAdapter(private val context: Context) :
             .into(holder.imageView)
     }
 
-    fun updateSearchQueryResultList(listOfQueryResult: List<Page>) {
+    fun updateSearchQueryResultList(wikiMediaResponse: WikiMediaResponse?) {
         this.listOfQueryResult.clear()
-        this.listOfQueryResult.addAll(listOfQueryResult)
+        userQuery = wikiMediaResponse?.userQuery
+        wikiMediaResponse?.query?.pages?.let { this.listOfQueryResult.addAll(it) }
         notifyDataSetChanged()
     }
 
@@ -50,7 +54,10 @@ class SearchQueryResultListAdapter(private val context: Context) :
             view.findViewById<AppCompatImageView>(R.id.search_result_image)
 
         init {
-                view.setOnClickListener { onItemClick?.invoke(listOfQueryResult[adapterPosition].pageid) }
+            view.setOnClickListener {
+                val item = listOfQueryResult[adapterPosition]
+                onItemClick?.invoke(item.pageid, userQuery)
+            }
         }
 
     }
